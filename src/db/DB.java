@@ -28,7 +28,6 @@ public class DB {
 		return conn;
 	}
 
-// close connection with database 
 	public static void closeConnection() {
 
 		if (conn != null) {
@@ -42,14 +41,12 @@ public class DB {
 		}
 	}
 
-//
 	private static Properties loadProperties() {
-
 		try (FileInputStream fs = new FileInputStream("db.properties")) {
 			Properties props = new Properties();
 			props.load(fs);
 			return props;
-
+			
 		} catch (IOException error) {
 			throw new DbException(error.getMessage());
 		}
