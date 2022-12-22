@@ -24,7 +24,7 @@ public class SellerDaoJBDC implements SellerDao {
 	public SellerDaoJBDC(Connection connectionDb) {
 		this.connectionDb = connectionDb;
 	}
-
+	
 	@Override
 	public void insert(Seller object) {
 		PreparedStatement prepStatement = null;
@@ -67,10 +67,11 @@ public class SellerDaoJBDC implements SellerDao {
 
 	}
 
+	
+	
 	@Override
 	public void update(Seller object) {
 		PreparedStatement prepStatement = null;
-
 		try {
 
 			prepStatement = connectionDb.prepareStatement(
@@ -94,12 +95,27 @@ public class SellerDaoJBDC implements SellerDao {
 		}
 	}
 
+	
+	
 	@Override
-	public void deletById(Seller id) {
-		// TODO Auto-generated method stub
-
+	public void deletById(Integer id) {
+		PreparedStatement prepStatement = null;
+		try {
+			prepStatement = connectionDb.prepareStatement("DELETE FROM Seller WHERE id = ?");
+			prepStatement.setInt(1, id);
+			
+			int rowsAffected = prepStatement.executeUpdate();
+			
+			if (rowsAffected == 0) {
+				throw new DbException("error id not existing! No rows affected");
+			}
+		} catch(SQLException error) {
+			throw new DbException(error.getMessage());
+		}
 	}
 
+	
+	
 	@Override
 	public Seller findById(Integer id) {
 		PreparedStatement prepStatement = null;
@@ -130,6 +146,7 @@ public class SellerDaoJBDC implements SellerDao {
 		}
 	}
 
+	
 	private Seller instantiateSeller(ResultSet resultSet, Department department) throws SQLException {
 		Seller obj = new Seller();
 		obj.setId(resultSet.getInt("Id"));
@@ -142,6 +159,7 @@ public class SellerDaoJBDC implements SellerDao {
 		return obj;
 	}
 
+	
 	private Department instatiateDepartment(ResultSet resultSet) throws SQLException {
 		Department department = new Department();
 		department.setId(resultSet.getInt("DepartmentId"));
@@ -150,6 +168,8 @@ public class SellerDaoJBDC implements SellerDao {
 		return department;
 	}
 
+	
+	
 	@Override
 	public List<Seller> findAll() {
 
@@ -189,6 +209,8 @@ public class SellerDaoJBDC implements SellerDao {
 		}
 	}
 
+	
+	
 	@Override
 	public List<Seller> findByDepartment(Department department) {
 		PreparedStatement prepStatement = null;
@@ -226,7 +248,6 @@ public class SellerDaoJBDC implements SellerDao {
 			DB.closeStatement(prepStatement);
 			DB.closeResultSet(resultSet);
 		}
-
 	}
 
 }
