@@ -41,6 +41,7 @@ public class SellerDaoJBDC implements SellerDao {
 
 	}
 
+	
 	@Override
 	public Seller findById(Integer id) {
 		PreparedStatement prepStatement = null;
@@ -48,8 +49,10 @@ public class SellerDaoJBDC implements SellerDao {
 
 		try {
 			prepStatement = connectionDb.prepareStatement(
-					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
-							+ "ON seller.DepartmentId = department.Id " + "WHERE seller.Id = ?");
+							"SELECT seller.*,department.Name as DepName " 
+							+ "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " 
+							+ "WHERE seller.Id = ?");
 
 			prepStatement.setInt(1, id);
 			resultSet = prepStatement.executeQuery();
@@ -69,6 +72,7 @@ public class SellerDaoJBDC implements SellerDao {
 		}
 	}
 
+	
 	private Seller instantiateSeller(ResultSet resultSet, Department department) throws SQLException {
 		Seller obj = new Seller();
 		obj.setId(resultSet.getInt("Id"));
@@ -81,6 +85,7 @@ public class SellerDaoJBDC implements SellerDao {
 		return obj;
 	}
 
+	
 	private Department instatiateDepartment(ResultSet resultSet) throws SQLException {
 		Department department = new Department();
 		department.setId(resultSet.getInt("DepartmentId"));
@@ -89,12 +94,47 @@ public class SellerDaoJBDC implements SellerDao {
 		return department;
 	}
 
+	
 	@Override
 	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		PreparedStatement prepStatement = null;
+		ResultSet resultSet = null;
+
+		try {
+			prepStatement = connectionDb.prepareStatement(
+					"SELECT seller.*,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "ORDER BY Name");
+			
+			resultSet = prepStatement.executeQuery();
+
+			List<Seller> list = new ArrayList<>();
+			Map<Integer, Department> map = new HashMap<>();
+
+			while (resultSet.next()) {
+				Department department = map.get(resultSet.getInt("DepartmentId"));
+				
+				if (department == null) {
+					department = instatiateDepartment(resultSet);
+					map.put(resultSet.getInt("DepartmentId"), department);
+				}
+				
+				Seller obj = instantiateSeller(resultSet, department);
+				list.add(obj);
+			}
+			return list;
+			
+		} catch (SQLException error) {
+			throw new DbException(error.getMessage());
+		} finally {
+			DB.closeStatement(prepStatement);
+			DB.closeResultSet(resultSet);
+		}
 	}
 
+	
 	@Override
 	public List<Seller> findByDepartment(Department department) {
 		PreparedStatement prepStatement = null;
